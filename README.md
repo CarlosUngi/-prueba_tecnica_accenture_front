@@ -10,6 +10,7 @@ La aplicación ha sido diseñada bajo estrictos estándares de ingeniería de so
 - [🚀 Arquitectura y Decisiones Tecnológicas](#-arquitectura-y-decisiones-tecnológicas)
   - [1. Patrón Arquitectónico (Clean Architecture)](#1-patrón-arquitectónico-clean-architecture)
   - [2. Stack de Tecnología Base](#2-stack-de-tecnología-base)
+  - [3. Estructura de Carpetas](#3-estructura-de-carpetas)
 - [💻 Configuración del Ambiente de Desarrollo (Windows & Linux)](#-configuración-del-ambiente-de-desarrollo-windows--linux)
   - [En Linux (Fedora / Ubuntu / Debian)](#-en-linux-fedora--ubuntu--debian)
   - [En Windows](#-en-windows)
@@ -38,6 +39,63 @@ Para asegurar un código desacoplado y altamente testeable, el proyecto se estru
 * **Manejo de Estado:** Patrón reactivo utilizando **RxJS** y `BehaviorSubject` para centralizar el flujo de datos y evitar lecturas redundantes en disco.
 * **Persistencia Local:** `@ionic/storage-angular` (orquestado por `localforage`), utilizando **IndexedDB** como motor de base de datos asíncrono en el dispositivo.
 * **Feature Flagging:** Integración nativa con **Firebase Remote Config** para controlar la visualización de la gestión de categorías en tiempo real sin desplegar nuevas versiones.
+
+### 3. Estructura de Carpetas
+
+A continuación se detalla la organización de los directorios y archivos clave del proyecto, reflejando la separación de capas (Clean Architecture) y la configuración híbrida:
+
+```text
+prueba_tecnica_accenture_front/
+├── .git/
+├── node_modules/
+├── platforms/                  # Generada automáticamente al añadir Android (Cordova)
+│   └── android/
+├── plugins/                    # Plugins nativos de Cordova
+├── src/                        # Código fuente de la aplicación
+│   ├── app/
+│   │   ├── core/               # CAPA 1: DOMINIO (Reglas de negocio puras, sin Frameworks)
+│   │   │   ├── models/
+│   │   │   │   ├── category.model.ts
+│   │   │   │   └── task.model.ts
+│   │   │   └── repositories/
+│   │   │       └── storage.repository.ts  # Interfaz / Contrato abstracto
+│   │   │
+│   │   ├── data/               # CAPA 2: DATOS E INFRAESTRUCTURA (Implementaciones físicas)
+│   │   │   └── services/
+│   │   │       ├── firebase-remote.service.ts # Control del Feature Flag
+│   │   │       ├── local-storage.service.ts   # Conexión real con @ionic/storage
+│   │   │       └── todo-state.service.ts      # Manejo del estado centralizado con RxJS
+│   │   │
+│   │   ├── presentation/       # CAPA 3: PRESENTACIÓN (Interfaz de usuario)
+│   │   │   └── tasks/
+│   │   │       ├── tasks.module.ts
+│   │   │       ├── tasks.page.html
+│   │   │       ├── tasks.page.scss
+│   │   │       └── tasks.page.ts
+│   │   │
+│   │   ├── app-routing.module.ts
+│   │   ├── app.component.ts
+│   │   └── app.module.ts       # Inicialización de IonicStorage y Firebase
+│   │
+│   ├── assets/                 # Recursos estáticos (Imágenes, logos, etc.)
+│   ├── environments/           # Variables de entorno (Placeholders de credenciales)
+│   │   ├── environment.prod.ts
+│   │   └── environment.ts
+│   ├── theme/
+│   │   └── variables.css       # Estilos globales de paleta de colores de Ionic
+│   ├── global.scss             # Estilos CSS globales de la app
+│   ├── index.html
+│   └── main.ts
+│
+├── angular.json                # Configuración del Workspace y builders de Cordova
+├── config.xml                  # Configuración nativa global de Cordova
+├── ionic.config.json           # Vinculación del CLI de Ionic con Angular/Cordova
+├── package.json                # Scripts de automatización y control de dependencias
+├── package-lock.json
+├── README.md                   # Documentación técnica de nivel Senior y respuestas
+├── tsconfig.app.json           # Configuración de TypeScript para la app
+└── tsconfig.json               # Configuración global de TypeScript
+```
 
 ---
 
