@@ -24,8 +24,9 @@
                     <ion-select-option value="medium">Gris</ion-select-option>
                 </ion-select>
 
-                <ion-button (click)="addCategory()" fill="solid" color="success">
-                    <ion-icon name="add-outline"></ion-icon>
+                <ion-button (click)="addCategory()" fill="solid" color="success"
+                    style="background-color: gray; color: black;">
+                    agregar
                 </ion-button>
             </div>
         </ion-card-content>
@@ -51,7 +52,8 @@
                     </ion-select-option>
                 </ion-select>
 
-                <ion-button (click)="addTask()" color="primary" style="min-width: 100px;">
+                <ion-button (click)="addTask()" color="primary"
+                    style="min-width: 100px; background-color: gray ; color: black;">
                     Agregar
                 </ion-button>
             </div>
@@ -82,7 +84,7 @@
         <ion-item-sliding *ngFor="let task of filteredTasks">
 
             <ion-item lines="full">
-                <ion-checkbox [checked]="task.isCompleted" (ionChange)="toggleTaskStatus(task)"
+                <ion-checkbox [checked]="task.isCompleted" (click)="toggleTaskStatus(task); $event.stopPropagation();"
                     slot="start"></ion-checkbox>
 
                 <ion-label [style.text-decoration]="task.isCompleted ? 'line-through' : 'none'"
@@ -95,7 +97,7 @@
                 </ion-label>
 
                 <ion-button slot="end" fill="clear" color="danger" (click)="deleteTask(task.id)">
-                    <ion-icon name="trash-outline"></ion-icon>
+                    borrar
                 </ion-button>
             </ion-item>
 

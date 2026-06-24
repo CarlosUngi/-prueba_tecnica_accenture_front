@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Subscription } from 'rxjs';
+import { TodoStateService } from '../../data/services/todo-state.service';
 import { Task } from '../../core/models/task.model';
 import { Category } from '../../core/models/category.model';
 
@@ -8,81 +10,70 @@ import { Category } from '../../core/models/category.model';
     styleUrls: ['./tasks.page.scss'],
     standalone: false
 })
-export class TasksPage implements OnInit {
+export class TasksPage implements OnInit, OnDestroy {
     tasks: Task[] = [];
     categories: Category[] = [];
 
-    selectedCategoryFilter: string = 'all';
+    private subscriptions: Subscription = new Subscription();
 
+    selectedCategoryFilter: string = 'all';
     newTaskTitle: string = '';
     newTaskCategoryId: string = '';
-
     newCategoryName: string = '';
     newCategoryColor: string = 'primary';
-    constructor() { }
+
+    constructor(private todoStateService: TodoStateService) { }
 
     ngOnInit() {
-        this.categories = [
-            { id: 'cat-1', name: 'Trabajo', color: 'medium', createdAt: new Date() },
-            { id: 'cat-2', name: 'Personal', color: 'success', createdAt: new Date() },
-            { id: 'cat-3', name: 'Urgente', color: 'danger', createdAt: new Date() }
-        ];
+        this.subscriptions.add(
+            this.todoStateService.categories$.subscribe(cats => {
+                this.categories = cats;
+            })
+        );
 
-        this.tasks = [
-            { id: 'task-1', title: 'Revisar requerimientos de Accenture', isCompleted: true, categoryId: 'cat-1', createdAt: new Date() },
-            { id: 'task-2', title: 'Implementar almacenamiento local con RxJS', isCompleted: false, categoryId: 'cat-1', createdAt: new Date() },
-            { id: 'task-3', title: 'Comprar café especial', isCompleted: false, categoryId: 'cat-2', createdAt: new Date() }
-        ];
+        this.subscriptions.add(
+            this.todoStateService.tasks$.subscribe(tasks => {
+                this.tasks = tasks;
+            })
+        );
     }
 
+    ngOnDestroy() {
+        this.subscriptions.unsubscribe();
+    }
     addTask() {
         if (!this.newTaskTitle.trim()) return;
-
-        const newTask: Task = {
-            id: 'task-' + Date.now(),
-            title: this.newTaskTitle.trim(),
-            isCompleted: false,
-            categoryId: this.newTaskCategoryId || undefined,
-            createdAt: new Date()
-        };
-
-        this.tasks.push(newTask);
+        this.todoStateService.addTask(this.newTaskTitle, this.newTaskCategoryId);
         this.newTaskTitle = '';
         this.newTaskCategoryId = '';
     }
 
     toggleTaskStatus(task: Task) {
-        task.isCompleted = !task.isCompleted;
+        this.todoStateService.toggleTaskStatus(task.id);
     }
 
     deleteTask(id: string) {
-        this.tasks = this.tasks.filter(t => t.id !== id);
+        this.todoStateService.deleteTask(id);
     }
 
     addCategory() {
         if (!this.newCategoryName.trim()) return;
-
-        const newCategory: Category = {
-            id: 'cat-' + Date.now(),
-            name: this.newCategoryName.trim(),
-            color: this.newCategoryColor,
-            createdAt: new Date()
-        };
-
-        this.categories.push(newCategory);
+        this.todoStateService.addCategory(this.newCategoryName, this.newCategoryColor);
         this.newCategoryName = '';
     }
 
     deleteCategory(id: string) {
-        this.categories = this.categories.filter(c => c.id !== id);
-        this.tasks.forEach(t => {
-            if (t.categoryId === id) {
-                t.categoryId = undefined;
-            }
-        });
+        this.todoStateService.deleteCategory(id);
         if (this.selectedCategoryFilter === id) {
             this.selectedCategoryFilter = 'all';
         }
+    }
+
+    get filteredTasks(): Task[] {
+        if (this.selectedCategoryFilter === 'all') {
+            return this.tasks;
+        }
+        return this.tasks.filter(t => t.categoryId === this.selectedCategoryFilter);
     }
 
     getCategoryColor(categoryId?: string): string {
@@ -95,12 +86,5 @@ export class TasksPage implements OnInit {
         if (!categoryId) return '';
         const cat = this.categories.find(c => c.id === categoryId);
         return cat ? cat.name : '';
-    }
-
-    get filteredTasks(): Task[] {
-        if (this.selectedCategoryFilter === 'all') {
-            return this.tasks;
-        }
-        return this.tasks.filter(t => t.categoryId === this.selectedCategoryFilter);
     }
 }
