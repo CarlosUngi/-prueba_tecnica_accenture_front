@@ -1,17 +1,110 @@
 <ion-header [translucent]="true">
     <ion-toolbar color="primary">
-        <ion-title>
-            {{ title }}
-        </ion-title>
+        <ion-title>Accenture To-Do Front</ion-title>
     </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" class="ion-padding">
-    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
-        <ion-icon name="checkmark-done-circle" color="success" style="font-size: 64px;"></ion-icon>
-        <h2 style="font-weight: 600; margin-top: 16px;">Hola Mundo tittle</h2>
-        <p style="color: var(--ion-color-medium); text-align: center;">
-            Hola mundo
-        </p>
+
+    <ion-card class="ion-no-margin ion-margin-bottom">
+        <ion-card-header>
+            <ion-card-title style="font-size: 1.1rem; font-weight: 600;">Nueva Categoría</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <ion-input type="text" placeholder="Ej. Universidad" [(ngModel)]="newCategoryName"
+                    class="custom-input"></ion-input>
+
+                <ion-select [(ngModel)]="newCategoryColor" interface="popover" placeholder="Color"
+                    style="max-width: 110px;">
+                    <ion-select-option value="primary">Azul</ion-select-option>
+                    <ion-select-option value="success">Verde</ion-select-option>
+                    <ion-select-option value="danger">Rojo</ion-select-option>
+                    <ion-select-option value="warning">Amarillo</ion-select-option>
+                    <ion-select-option value="medium">Gris</ion-select-option>
+                </ion-select>
+
+                <ion-button (click)="addCategory()" fill="solid" color="success">
+                    <ion-icon name="add-outline"></ion-icon>
+                </ion-button>
+            </div>
+        </ion-card-content>
+    </ion-card>
+
+    <ion-card class="ion-no-margin ion-margin-bottom">
+        <ion-card-header>
+            <ion-card-title style="font-size: 1.1rem; font-weight: 600;">Nueva Tarea</ion-card-title>
+        </ion-card-header>
+        <ion-card-content>
+            <ion-item lines="none" class="ion-no-padding">
+                <ion-input type="text" placeholder="¿Qué tienes pendiente por hacer?"
+                    [(ngModel)]="newTaskTitle"></ion-input>
+            </ion-item>
+
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; gap: 8px;">
+                <ion-select [(ngModel)]="newTaskCategoryId" placeholder="Asignar Categoría" interface="popover"
+                    style="width: 100%;">
+                    <ion-select-option value="">Sin Categoría</ion-select-option>
+                    <ion-select-option *ngFor="let cat of categories" [value]="cat.id">
+                        {{ cat.name }}
+                    </ion-select-option>
+                </ion-select>
+
+                <ion-button (click)="addTask()" color="primary" style="min-width: 100px;">
+                    Agregar
+                </ion-button>
+            </div>
+        </ion-card-content>
+    </ion-card>
+
+    <div class="ion-margin-vertical">
+        <h3 style="font-size: 1rem; font-weight: 600; margin-left: 4px; margin-bottom: 8px;">Filtrar por Categoría:</h3>
+        <div style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; white-space: nowrap;">
+            <ion-chip [color]="selectedCategoryFilter === 'all' ? 'primary' : 'medium'"
+                (click)="selectedCategoryFilter = 'all'">
+                <ion-label>Todas ({{ tasks.length }})</ion-label>
+            </ion-chip>
+
+            <ion-chip *ngFor="let cat of categories" [color]="selectedCategoryFilter === cat.id ? cat.color : 'medium'"
+                (click)="selectedCategoryFilter = cat.id">
+                <ion-label>{{ cat.name }}</ion-label>
+                <ion-icon name="close-circle" (click)="deleteCategory(cat.id); $event.stopPropagation();"
+                    style="margin-left: 4px; font-size: 16px;"></ion-icon>
+            </ion-chip>
+        </div>
     </div>
+
+    <h3 style="font-size: 1.1rem; font-weight: 600; margin-top: 16px; margin-bottom: 8px; margin-left: 4px;">Mis Tareas
+    </h3>
+
+    <ion-list lines="inset" *ngIf="filteredTasks.length > 0">
+        <ion-item-sliding *ngFor="let task of filteredTasks">
+
+            <ion-item lines="full">
+                <ion-checkbox [checked]="task.isCompleted" (ionChange)="toggleTaskStatus(task)"
+                    slot="start"></ion-checkbox>
+
+                <ion-label [style.text-decoration]="task.isCompleted ? 'line-through' : 'none'"
+                    [style.opacity]="task.isCompleted ? '0.6' : '1'">
+                    <h2 style="font-weight: 500;">{{ task.title }}</h2>
+                    <p style="font-size: 0.8rem; margin-top: 4px;" *ngIf="task.categoryId">
+                        <ion-badge [color]="getCategoryColor(task.categoryId)">{{ getCategoryName(task.categoryId)
+                            }}</ion-badge>
+                    </p>
+                </ion-label>
+
+                <ion-button slot="end" fill="clear" color="danger" (click)="deleteTask(task.id)">
+                    <ion-icon name="trash-outline"></ion-icon>
+                </ion-button>
+            </ion-item>
+
+        </ion-item-sliding>
+    </ion-list>
+
+    <div *ngIf="filteredTasks.length === 0" style="text-align: center; margin-top: 40px; padding: 0 20px;">
+        <ion-icon name="file-tray-outline" style="font-size: 48px; color: var(--ion-color-medium);"></ion-icon>
+        <p style="color: var(--ion-color-medium); margin-top: 8px;">No hay tareas en esta categoría.</p>
+    </div>
+
 </ion-content>
