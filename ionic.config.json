@@ -1,0 +1,7 @@
+{
+    "name": "prueba_tecnica_accenture_front",
+    "integrations": {
+        "cordova": {}
+    },
+    "type": "angular"
+}
