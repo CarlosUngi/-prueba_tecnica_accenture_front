@@ -3,6 +3,8 @@ import { Subscription } from 'rxjs';
 import { TodoStateService } from '../../data/services/todo-state.service';
 import { Task } from '../../core/models/task.model';
 import { Category } from '../../core/models/category.model';
+import { FirebaseRemoteService } from '../../data/services/firebase-remote.service';
+
 
 @Component({
     selector: 'app-tasks',
@@ -13,6 +15,7 @@ import { Category } from '../../core/models/category.model';
 export class TasksPage implements OnInit, OnDestroy {
     tasks: Task[] = [];
     categories: Category[] = [];
+    showCategories: boolean = true;
 
     private subscriptions: Subscription = new Subscription();
 
@@ -22,9 +25,15 @@ export class TasksPage implements OnInit, OnDestroy {
     newCategoryName: string = '';
     newCategoryColor: string = 'primary';
 
-    constructor(private todoStateService: TodoStateService) { }
+    constructor(private todoStateService: TodoStateService, private firebaseRemoteService: FirebaseRemoteService) { }
 
     ngOnInit() {
+        this.subscriptions.add(
+            this.firebaseRemoteService.isCategoriesEnabled$.subscribe(isEnabled => {
+                this.showCategories = isEnabled;
+            })
+        );
+
         this.subscriptions.add(
             this.todoStateService.categories$.subscribe(cats => {
                 this.categories = cats;
@@ -87,4 +96,5 @@ export class TasksPage implements OnInit, OnDestroy {
         const cat = this.categories.find(c => c.id === categoryId);
         return cat ? cat.name : '';
     }
+
 }

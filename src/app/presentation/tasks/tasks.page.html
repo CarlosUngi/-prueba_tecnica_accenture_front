@@ -6,7 +6,7 @@
 
 <ion-content [fullscreen]="true" class="ion-padding">
 
-    <ion-card class="ion-no-margin ion-margin-bottom">
+    <ion-card class="ion-no-margin ion-margin-bottom" *ngIf="showCategories">
         <ion-card-header>
             <ion-card-title style="font-size: 1.1rem; font-weight: 600;">Nueva Categoría</ion-card-title>
         </ion-card-header>
@@ -60,7 +60,7 @@
         </ion-card-content>
     </ion-card>
 
-    <div class="ion-margin-vertical">
+    <div class="ion-margin-vertical" *ngIf="showCategories">
         <h3 style="font-size: 1rem; font-weight: 600; margin-left: 4px; margin-bottom: 8px;">Filtrar por Categoría:</h3>
         <div style="display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; white-space: nowrap;">
             <ion-chip [color]="selectedCategoryFilter === 'all' ? 'primary' : 'medium'"

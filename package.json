@@ -34,7 +34,7 @@
     "@angular/router": "^18.0.0",
     "@ionic/angular": "^7.0.0",
     "@ionic/storage-angular": "^4.0.0",
-    "firebase": "^10.0.0",
+    "firebase": "^10.14.1",
     "localforage": "^1.10.0",
     "rxjs": "^7.8.0",
     "tslib": "^2.3.0",
